@@ -1,0 +1,3 @@
+it/unipi/hadoop/LetterFrequency$LetterFrequencyMapper.class
+it/unipi/hadoop/LetterFrequency$LetterFrequencyReducer.class
+it/unipi/hadoop/LetterFrequency.class
