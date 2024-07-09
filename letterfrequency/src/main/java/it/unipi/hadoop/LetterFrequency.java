@@ -1,6 +1,5 @@
 package it.unipi.hadoop;
 import java.io.IOException;
-import java.util.StringTokenizer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -70,7 +69,7 @@ for(char c : data.toCharArray()) {
  FileInputFormat.addInputPath(job, new Path(otherArgs[i]));
  }
  FileOutputFormat.setOutputPath(job,new Path(otherArgs[otherArgs.length - 1]));
- 
+
  System.exit(job.waitForCompletion(true) ? 0 : 1);
  }
 }
