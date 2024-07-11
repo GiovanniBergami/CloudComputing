@@ -57,7 +57,7 @@ System.out.println("BRO1");
  }
  System.out.println("BRO3");
  Job job = Job.getInstance(conf, "total letter count");
- job.setNumReduceTasks(nReducers);
+ //job.setNumReduceTasks(nReducers);
 
  if (!inMapper) {
     job.setJarByClass(LetterCount.class);
