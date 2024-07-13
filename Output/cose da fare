@@ -87,6 +87,17 @@ in-mapper:
     job1 Physical memory (bytes) snapshot=1264992256
     job2 Physical memory (bytes) snapshot=1962348544
 
+1GB:
+     1 reducer:
+    job1 Physical memory (bytes) snapshot=2870358016
+    job2 Physical memory (bytes) snapshot=2959622144
+    3 reducers:
+    job1 Physical memory (bytes) snapshot=2880409600
+    job2 Physical memory (bytes) snapshot=3337281536
+    5 reducers
+    job1 Physical memory (bytes) snapshot=2911125504
+    job2 Physical memory (bytes) snapshot=3650752512
+
 2GB: number of splits:19
      1 reducerc:
     job1 Physical memory (bytes) snapshot=5266989056
