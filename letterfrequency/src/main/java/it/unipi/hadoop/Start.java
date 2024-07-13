@@ -90,30 +90,10 @@ public class Start {
         boolean jobSuccess = job.waitForCompletion(true);
         double jobTime = (System.nanoTime() - jobStartTime) / 1000000000.0;
 
-        // Counters counters1 = job.getCounters();
-        // long mapMemory1 = counters1.findCounter("Map-Reduce Framework", "Physical
-        // memory (bytes) snapshot").getValue();
-        // long reduceMemory1 = counters1.findCounter("Map-Reduce Framework", "Reduce
-        // output records").getValue();
 
         // Secondo job: calcolo delle frequenze delle lettere
         if (jobSuccess) {
-            Counters counters1 = job.getCounters();
-            long mapMemory1 = 0;
-            long reduceOutput1 = 0;
 
-            // Itera sui gruppi di contatori per trovare i valori desiderati
-            for (CounterGroup group : counters1) {
-                if (group.getDisplayName().equals("Map-Reduce Framework ")) {
-                    for (Counter counter : group) {
-                        if (counter.getName().equals("Physical memory (bytes) snapshot")) {
-                            mapMemory1 = counter.getValue();
-                        } else if (counter.getName().equals("Reduce output records")) {
-                            reduceOutput1 = counter.getValue();
-                        }
-                    }
-                }
-            }
             FileSystem fs = FileSystem.get(conf);
 
             double totalLetters = readLetterCountValue(fs, tempOutputPath);
@@ -151,25 +131,11 @@ public class Start {
 
             double total_time = jobTime + job2Time;
 
-            // writeToCSV(otherArgs[0], total_time, nReducers, inMapper);
+            
 
-            Counters counters2 = job2.getCounters();
-            long mapMemory2 = counters2.findCounter("Map-Reduce Framework", "Physical memory (bytes) snapshot")
-                    .getValue();
-            long reduceMemory2 = counters2.findCounter("Map-Reduce Framework", "Reduce output records").getValue();
 
-            for (CounterGroup group : counters2) {
-                System.out.println(group.getDisplayName() + ":");
-                for (Counter counter : group) {
-                    System.out.println("  " + counter.getDisplayName() + " = " + counter.getValue());
-                }
-            }
-            System.out.println(mapMemory1);
             if (jobSuccess) {
-
-                System.out.println(mapMemory1);
-                writeResultsToCSV(otherArgs[0], total_time, nReducers, inMapper, jobTime, job2Time, mapMemory1,
-                        reduceOutput1, mapMemory2, reduceMemory2);
+                writeToCSV(otherArgs[0], total_time,jobTime,job2Time, nReducers, inMapper);
                 System.exit(0);
             } else
                 System.exit(1);
@@ -203,33 +169,9 @@ public class Start {
         }
     }
 
-    public static void writeResultsToCSV(String filename, double totalTime, int nReducers, boolean inMapper,
-            double job1Time, double job2Time, long mapMemory1, long reduceMemory1,
-            long mapMemory2, long reduceMemory2) {
+    public static void writeToCSV(String filename, double totalTime,double timeJob1, double timeJob2, int nReducers, boolean inMapper) {
         String csvFile = "../../Output/output.csv";
-        File file = new File(csvFile);
-        boolean isEmpty = file.length() == 0;
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile, true))) {
-            if (isEmpty) {
-                // Write header
-                writer.write(
-                        "Filename,TotalTime,NReducers,InMapper,Job1Time,Job2Time,MapMemoryJob1,ReduceMemoryJob1,MapMemoryJob2,ReduceMemoryJob2");
-                writer.newLine();
-            }
-            System.out.println(mapMemory1);
-            writer.write(filename + "," + totalTime + "," + nReducers + "," + inMapper + ","
-                    + job1Time + "," + job2Time + "," + mapMemory1 + "," + reduceMemory1 + ","
-                    + mapMemory2 + "," + reduceMemory2);
-            writer.newLine();
-        } catch (IOException e) {
-            System.err.println("Errore nella scrittura del file CSV: " + e.getMessage());
-        }
-    }
-
-    public static void writeToCSV(String filename, double totalTime, int nReducers, boolean inMapper) {
-        String csvFile = "../../Output/output.csv";
-        String csvHeader = "Filename,TotalTime,Reducers,InMapper";
+        String csvHeader = "Filename,TotalTime,TimeJob1,TimeJob2,Reducers,InMapper";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile, true))) {
 
@@ -243,7 +185,7 @@ public class Start {
             }
 
             System.out.println("Writing data to CSV...");
-            writer.write(filename + "," + totalTime + "," + nReducers + "," + inMapper);
+            writer.write(filename + "," + totalTime + "," + timeJob1 + "," + timeJob2 + "," +   nReducers + "," + inMapper);
             writer.newLine();
         } catch (IOException e) {
             System.err.println("Errore durante la scrittura nel file CSV: " + e.getMessage());
