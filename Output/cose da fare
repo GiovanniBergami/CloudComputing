@@ -1,9 +1,116 @@
 
-- confronto mapper inmapper combiner
+- confronto mapper inmapper combiner (3 REDUCERS)  500MB, 147MB, 4.9MB, 271KB
+
+271KB:
+
+combiner:
+    job1 Physical memory (bytes) snapshot=444846080
+    job2 Physical memory (bytes) snapshot=791166976
+in-mapper:
+    job1 Physical memory (bytes) snapshot=448311296
+    job2 Physical memory (bytes) snapshot=765194240
+
+4.9MB:
+
+combiner:
+    job1 Physical memory (bytes) snapshot=442724352
+    job2 Physical memory (bytes) snapshot=790814720
+in-mapper:
+    job1 Physical memory (bytes) snapshot=448372736
+    job2 Physical memory (bytes) snapshot=795701248
+
+147MB:
+
+combiner:
+    job1 Physical memory (bytes) snapshot=726409216
+    job2 Physical memory (bytes) snapshot=1074110464
+in-mapper:
+    job1 Physical memory (bytes) snapshot=720273408
+    job2 Physical memory (bytes) snapshot=1067864064
+
+500MB:
+
+combiner:
+    job1 Physical memory (bytes) snapshot=1276616704
+    job2 Physical memory (bytes) snapshot=1665601536
+in-mapper:
+    job1 Physical memory (bytes) snapshot=1259515904
+    job2 Physical memory (bytes) snapshot=1633984512
 
 
-- confrnto numero di reducers 1, 3, 5 
-- nyt in tutte le dimensioni con inmapper e nreducers
+
+
+
+- confronto numero di reducers 1, 3, 5  2GB, 500MB,147MB, 4.9MB, 271KB
+
+271KB: 
+    1 reducerc:
+    job1 Physical memory (bytes) snapshot=422215680
+    job2 Physical memory (bytes) snapshot=447913984
+    3 reducers:
+    job1 Physical memory (bytes) snapshot=448311296
+    job2 Physical memory (bytes) snapshot=765194240
+    5 reducers
+    job1 Physical memory (bytes) snapshot=442605568
+    job2 Physical memory (bytes) snapshot=1136627712
+
+4.9MB: number of splits:1
+     1 reducerc:
+    job1 Physical memory (bytes) snapshot=444456960
+    job2 Physical memory (bytes) snapshot=451096576
+    3 reducers:
+    job1 Physical memory (bytes) snapshot=448372736
+    job2 Physical memory (bytes) snapshot=795701248
+    5 reducers
+    job1 Physical memory (bytes) snapshot=446214144
+    job2 Physical memory (bytes) snapshot=1093210112
+
+147MB: number of splits:2
+     1 reducerc:
+    job1 Physical memory (bytes) snapshot=723578880
+    job2 Physical memory (bytes) snapshot=729169920
+    3 reducers:
+    job1 Physical memory (bytes) snapshot=720273408
+    job2 Physical memory (bytes) snapshot=1067864064
+    5 reducers
+    job1 Physical memory (bytes) snapshot=724463616
+    job2 Physical memory (bytes) snapshot=1411596288
+
+500MB: number of splits:4
+     1 reducerc:
+    job1 Physical memory (bytes) snapshot=1273729024
+    job2 Physical memory (bytes) snapshot=1285423104
+    3 reducers:
+    job1 Physical memory (bytes) snapshot=1259515904
+    job2 Physical memory (bytes) snapshot=1633984512
+    5 reducers
+    job1 Physical memory (bytes) snapshot=1264992256
+    job2 Physical memory (bytes) snapshot=1962348544
+
+2GB: number of splits:19
+     1 reducerc:
+    job1 Physical memory (bytes) snapshot=5266989056
+    job2 Physical memory (bytes) snapshot=5418733568
+    3 reducers:
+    job1 Physical memory (bytes) snapshot=5311062016
+    job2 Physical memory (bytes) snapshot=5885411328
+    5 reducers
+    job1 Physical memory (bytes) snapshot=5340758016
+    job2 Physical memory (bytes) snapshot=6172041216
+
+- nyt in tutte le dimensioni con inmapper e 3 reducers tutti i NYT   : 2.37GB,1.19GB, 489MB, 245MB, 147MB, 4.9MB, 271KB
+
+1.19GB:
+
+in-mapper:
+    job1 Physical memory (bytes) snapshot=2880409600
+    job2 Physical memory (bytes) snapshot=3337281536
+
+245GB: 2 input split
+
+in-mapper: 
+    job1 Physical memory (bytes) snapshot=723582976
+    job2 Physical memory (bytes) snapshot=1068650496
 
 - confronto lingue 
 
