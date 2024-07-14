@@ -27,7 +27,7 @@ public class LetterCount {
         }
     }
 
-    //COMBINER corrisponde al reducer perchè è presente una sola chiave
+    //COMBINER --> stesso codice del reducer 
     
     //REDUCER
     public static class LetterCountReducer extends Reducer<Text,LongWritable,Text,LongWritable> {
