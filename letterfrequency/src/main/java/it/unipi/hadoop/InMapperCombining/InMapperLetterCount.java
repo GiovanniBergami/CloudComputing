@@ -8,32 +8,32 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class InMapperLetterCount {
 
-    // IN MAPPER COMBINER
+    // IN-MAPPER COMBINER
     public static class LetterCountMapper extends Mapper<Object, Text, Text, LongWritable> {
 
         private LongWritable count;
         private Text tot_letters = new Text("total_letters");
 
         public void setup(Context context) {
-            count = new LongWritable(0);
+            count = new LongWritable(0); //initialize count at 0
         }
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
-            String text = value.toString().toLowerCase();
+            String text = value.toString().toLowerCase(); // convert letters in lower case
 
             for (char c : text.toCharArray()) {
 
-                if (Character.isLetter(c)) {
-                    count.set(count.get() + 1);
+                if (Character.isLetter(c)) {  //consider only characters that are letters
 
+                    count.set(count.get() + 1);
                 }
             }
 
         }
 
         public void cleanup(Context context) throws IOException, InterruptedException {
-            context.write(tot_letters, count);
+            context.write(tot_letters, count); 
         }
     }
 

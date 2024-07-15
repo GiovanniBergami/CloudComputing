@@ -2,7 +2,6 @@ package it.unipi.hadoop;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,9 +12,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.CounterGroup;
-import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -30,15 +26,12 @@ import it.unipi.hadoop.Combiner.LetterFrequency.LetterFrequencyMapper;
 import it.unipi.hadoop.Combiner.LetterFrequency.LetterFrequencyReducer;
 import it.unipi.hadoop.InMapperCombining.InMapperLetterCount;
 import it.unipi.hadoop.InMapperCombining.InMapperLetterFrequency;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-// nreducers, inputsplit, e combiner/inmapper
+
 
 public class Start {
 
-    private static Integer nReducers = 1;
-    private static Boolean inMapper = false;
+    private static Integer nReducers = 1; //default value for number of reducers
+    private static Boolean inMapper = false; //default combining strategy
 
     public static void main(String[] args) throws Exception {
 
@@ -50,125 +43,134 @@ public class Start {
                     "Usage: letterfrequency <in> [<in>...] <out> <nReducers(default 1)> <method(1 for InMapper-Combining)>");
             System.exit(2);
         }
-        // otherArgs[2] è nReducers
-        if (args.length > 2) {
-            if (Integer.parseInt(args[2]) != -1) { // -1 per lasciare il default value, consente di specificare solo il
-                                                   // metodo
+
+        // otherArgs[2] is nReducers
+        if (args.length > 2) {  //if there is a custom value for nReducers or combiner mode
+
+            if (Integer.parseInt(args[2]) != -1) { // -1 can be used to keep the deafult nReducer and specify combiner mode
                 nReducers = Integer.parseInt(args[2]);
             }
+            
+            if (nReducers<-1) {
+                System.err.println("Wrong value for number of reducers");
+                System.exit(1);
+            }
         }
-        // otherArgs[3] è il metodo
+
+        // otherArgs[3] is combiner mode
         if (args.length > 3) {
             if (Integer.parseInt(args[3]) == 1) {
                 inMapper = true;
             }
+
+            if (!(Integer.parseInt(args[3])!=0 || Integer.parseInt(args[3])!=1)) {
+                System.err.println("Wrong value for Combiner mode, insert 0 or 1 ");
+                System.exit(1);
+            }
         }
 
-        Job job = Job.getInstance(conf, "total letter count");
-        // job.setNumReduceTasks(nReducers);
+        Job job = Job.getInstance(conf, "total letter count"); // first map-reduce job to count all the letters in the document
 
-        if (!inMapper) {
+        if (inMapper) { 
+            job.setJarByClass(InMapperLetterCount.class);
+            job.setMapperClass(InMapperLetterCount.LetterCountMapper.class); //in-mapper combiner
+            job.setReducerClass(InMapperLetterCount.LetterCountReducer.class);
+        } else {
             job.setJarByClass(LetterCount.class);
             job.setMapperClass(LetterCountMapper.class);
-            job.setCombinerClass(LetterCountReducer.class);
+            job.setCombinerClass(LetterCountReducer.class); // in this case we can use the reducer as combiner
             job.setReducerClass(LetterCountReducer.class);
-        } else {
-            job.setJarByClass(InMapperLetterCount.class);
-            job.setMapperClass(InMapperLetterCount.LetterCountMapper.class);
-            job.setReducerClass(InMapperLetterCount.LetterCountReducer.class);
         }
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 
-        FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+        FileInputFormat.addInputPath(job, new Path(otherArgs[0])); // set input path
 
         Path tempOutputPath = new Path(otherArgs[1] + "_temp");
-        FileOutputFormat.setOutputPath(job, tempOutputPath);
+        FileOutputFormat.setOutputPath(job, tempOutputPath); // set output path for the first job 
 
         long jobStartTime = System.nanoTime();
         boolean jobSuccess = job.waitForCompletion(true);
-        double jobTime = (System.nanoTime() - jobStartTime) / 1000000000.0;
+        double jobTime = (System.nanoTime() - jobStartTime) / 1000000000.0; //save the time of completion of the job
 
 
-        // Secondo job: calcolo delle frequenze delle lettere
+        
         if (jobSuccess) {
 
             FileSystem fs = FileSystem.get(conf);
 
-            double totalLetters = readLetterCountValue(fs, tempOutputPath);
+            double totalLetters = readLetterCountValue(fs, tempOutputPath); //read the first job output
+            System.out.println("\nTotal letters in the document: "+totalLetters+ '\n');
 
-            System.out.println(totalLetters);
-            Job job2 = Job.getInstance(conf, "letter frequency count");
-            job2.setNumReduceTasks(nReducers);
+            Job job2 = Job.getInstance(conf, "letter frequency count"); //job2 is the letter frequency count job
+            job2.setNumReduceTasks(nReducers); //set the number of reducers (default 1)
 
-            if (!inMapper) {
+            if (inMapper) {
+                job2.setJarByClass(InMapperLetterFrequency.class);
+                job2.setMapperClass(InMapperLetterFrequency.LetterFrequencyMapper.class); // in-mapper combiner
+                job2.setReducerClass(InMapperLetterFrequency.LetterFrequencyReducer.class);
+            } else {
                 job2.setJarByClass(LetterFrequency.class);
                 job2.setMapperClass(LetterFrequencyMapper.class);
                 job2.setCombinerClass(LetterFrequencyCombiner.class);
                 job2.setReducerClass(LetterFrequencyReducer.class);
-            } else {
-                job2.setJarByClass(InMapperLetterFrequency.class);
-                job2.setMapperClass(InMapperLetterFrequency.LetterFrequencyMapper.class);
-                job2.setReducerClass(InMapperLetterFrequency.LetterFrequencyReducer.class);
             }
 
             job2.setOutputKeyClass(Text.class);
             job2.setOutputValueClass(LongWritable.class);
 
-            job2.getConfiguration().setDouble("totalLetters", totalLetters);
+            job2.getConfiguration().setDouble("totalLetters", totalLetters); //set the total of letters in the configuration
 
-            // Configura gli input e l'output per il secondo job
-            // FileInputFormat.setInputPaths(job2, tempOutputPath);
             FileInputFormat.addInputPath(job2, new Path(otherArgs[0]));
-
             FileOutputFormat.setOutputPath(job2, new Path(otherArgs[1]));
 
             // Esegui il secondo job e controlla se è stato completato con successo
             long job2StartTime = System.nanoTime();
             jobSuccess = job2.waitForCompletion(true);
-            double job2Time = (System.nanoTime() - job2StartTime) / 1000000000.0;
+            double job2Time = (System.nanoTime() - job2StartTime) / 1000000000.0; //save the time of completion of the job
 
-            double total_time = jobTime + job2Time;
+            double total_time = jobTime + job2Time; //save the total time
 
             
-
-
             if (jobSuccess) {
-                writeToCSV(otherArgs[0], total_time,jobTime,job2Time, nReducers, inMapper);
+                writeToCSV(otherArgs[0], total_time,jobTime,job2Time, nReducers, inMapper); //write statistics in a csv file
                 System.exit(0);
             } else
-                System.exit(1);
+                System.exit(1); // Second job failed
 
         } else {
-            System.exit(1); // Esce con codice di errore se il primo job non è stato completato con successo
+            System.exit(1); // first job failed
         }
 
     }
 
+    //Method to read the output file of the first job
     public static long readLetterCountValue(FileSystem fs, Path outputPath) throws IOException {
-        Path path = new Path(outputPath + "/part-r-00000");
+
+        Path path = new Path(outputPath + "/part-r-00000"); //output path
+
         try (FSDataInputStream inputStream = fs.open(path);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("total_letters")) {
-                    // Extract value after "letter_count"
-                    String[] parts = line.split("\\s+");
-                    if (parts.length == 2) {
-                        return Long.parseLong(parts[1]);
+                    
+                    String[] splits = line.split("\\s+"); // it's a regex for multiple spaces preceded by the java escape character
+
+                    if (splits.length == 2) {
+                        return Long.parseLong(splits[1]);
                     } else {
-                        System.err.println("Invalid format in the output file: " + line);
+                        System.err.println("The format of the file is not valid: " + line);
                         return -1;
                     }
                 }
             }
-            // If "letter_count" line not found
-            System.err.println("'letter_count' value not found in the output file file");
             return -1;
         }
     }
 
+    //Method to save statistics in a csv file
     public static void writeToCSV(String filename, double totalTime,double timeJob1, double timeJob2, int nReducers, boolean inMapper) {
         String csvFile = "../../Output/output.csv";
         String csvHeader = "Filename,TotalTime,TimeJob1,TimeJob2,Reducers,InMapper";
@@ -177,18 +179,18 @@ public class Start {
 
             System.out.println("Checking if CSV file is empty...");
 
-            // Se il file è vuoto, scrive l'intestazione
-            if (new java.io.File(csvFile).length() == 0) {
+            if (new java.io.File(csvFile).length() == 0) { //Write the header if the file is empty
                 System.out.println("CSV file is empty, writing header...");
                 writer.write(csvHeader);
                 writer.newLine();
             }
 
             System.out.println("Writing data to CSV...");
+            //Write data in the csv
             writer.write(filename + "," + totalTime + "," + timeJob1 + "," + timeJob2 + "," +   nReducers + "," + inMapper);
             writer.newLine();
         } catch (IOException e) {
-            System.err.println("Errore durante la scrittura nel file CSV: " + e.getMessage());
+            System.err.println("Error during the writing: " + e.getMessage());
         }
     }
 }

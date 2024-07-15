@@ -10,7 +10,6 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.commons.lang3.StringUtils;
 
 public class InMapperLetterFrequency {
 
@@ -23,41 +22,36 @@ public class InMapperLetterFrequency {
 
 
         protected void setup(Context context) {
-            lettersCounter = new HashMap<Text, LongWritable>(); 
+            lettersCounter = new HashMap<Text, LongWritable>(); // hash map to create key-value pairs
         }
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
-            String data = value.toString().toLowerCase();
+            String data = value.toString().toLowerCase(); // convert letters in lower case
             for(char c : data.toCharArray()) {
                 
                 if (Character.isLetter(c)) {
 
-                    Text letter = new Text(StringUtils.stripAccents(Character.toString(c))); // rimozioni accenti
+                    Text letter = new Text(StringUtils.stripAccents(Character.toString(c))); // remove accents and diatrical marks
 
-                    if (lettersCounter.containsKey(letter)) {
+                    if (lettersCounter.containsKey(letter)) { // if key is present, add 1 to the value 
 
                         lettersCounter.replace(letter,new LongWritable(lettersCounter.get(letter).get() + 1 ) );
 
                     }
                     else{
-                        lettersCounter.put(letter, one);
+                        lettersCounter.put(letter, one); //otherwise add the key with value 1
                     }
                     
                 }
             }
         }
 
-       // public void cleanup(Context context) throws IOException, InterruptedException {
-         //   for (Text t : lettersCounter.keySet()) {
-           //     System.out.println(t.toString());
-             //   context.write(t, lettersCounter.get(t));
-            //}
-        //}
-
             protected void cleanup(Context context) throws IOException, InterruptedException {
-            for (Map.Entry<Text, LongWritable> entry : lettersCounter.entrySet()) {
-                context.write(entry.getKey(), entry.getValue());
+
+            for (Map.Entry<Text, LongWritable> entry : lettersCounter.entrySet()) { 
+
+                context.write(entry.getKey(), entry.getValue()); //write in the context all the key-value pairs in the hash map
             }
         }
     }
@@ -71,7 +65,7 @@ public class InMapperLetterFrequency {
             
         public void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            totalLetters = conf.getDouble("totalLetters", 1); // 1 default value
+            totalLetters = conf.getDouble("totalLetters", 1);  // get first job output as totalLetters
         }
 
 
@@ -84,7 +78,7 @@ public class InMapperLetterFrequency {
                 tot += (double) val.get();
             }
 
-            double result = (double) tot / totalLetters;
+            double result = (double) tot / totalLetters; // frequency calculation
             context.write(key, new DoubleWritable(result));  
         }
     } 

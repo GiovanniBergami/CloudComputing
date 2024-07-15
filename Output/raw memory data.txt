@@ -123,7 +123,7 @@ in-mapper:
     job1 Physical memory (bytes) snapshot=723582976
     job2 Physical memory (bytes) snapshot=1068650496
 
-- confronto lingue 
+
 
 
 

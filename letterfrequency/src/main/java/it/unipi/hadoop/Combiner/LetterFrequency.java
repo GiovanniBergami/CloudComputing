@@ -20,11 +20,12 @@ public class LetterFrequency {
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
-            String text = value.toString().toLowerCase();
+            String text = value.toString().toLowerCase(); // convert letters in lower case
+
             for(char c : text.toCharArray()) {
 
                 if (Character.isLetter(c)) {
-                    letter.set(StringUtils.stripAccents(Character.toString(c))); // rimozioni accenti
+                    letter.set(StringUtils.stripAccents(Character.toString(c))); // remove accents and diatrical marks
                     context.write(letter, one);
                 }
             }
@@ -59,7 +60,7 @@ public class LetterFrequency {
             
         public void setup(Context context) {
             Configuration conf = context.getConfiguration();
-            totalLetters = conf.getDouble("totalLetters", 1); // 1 default value
+            totalLetters = conf.getDouble("totalLetters", 1); // get first job output as totalLetters
         }
 
 
@@ -72,7 +73,7 @@ public class LetterFrequency {
                 tot += (double) val.get();
             }
 
-            double result = (double) tot / totalLetters;
+            double result = (double) tot / totalLetters; // frequency calculation
             context.write(key, new DoubleWritable(result));  
         }
     } 

@@ -17,17 +17,17 @@ public class LetterCount {
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 
-            String text = value.toString().toLowerCase();
+            String text = value.toString().toLowerCase(); // convert letters in lower case
             for(char c : text.toCharArray()) {
 
-                if (Character.isLetter(c)) {
-                    context.write(tot_letters, one);
+                if (Character.isLetter(c)) {  //consider only characters that are letters
+                    context.write(tot_letters, one); 
                 }
             }
         }
     }
 
-    //COMBINER --> stesso codice del reducer 
+    //COMBINER --> same code as reducer
     
     //REDUCER
     public static class LetterCountReducer extends Reducer<Text,LongWritable,Text,LongWritable> {
@@ -39,7 +39,7 @@ public class LetterCount {
             long sum = 0;
 
             for (LongWritable val : values) {
-                sum += val.get();
+                sum += val.get(); 
             }
 
             result.set(sum);
