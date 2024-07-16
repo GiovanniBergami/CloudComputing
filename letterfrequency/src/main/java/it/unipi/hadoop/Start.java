@@ -125,7 +125,7 @@ public class Start {
             FileInputFormat.addInputPath(job2, new Path(otherArgs[0]));
             FileOutputFormat.setOutputPath(job2, new Path(otherArgs[1]));
 
-            // Esegui il secondo job e controlla se è stato completato con successo
+        
             long job2StartTime = System.nanoTime();
             jobSuccess = job2.waitForCompletion(true);
             double job2Time = (System.nanoTime() - job2StartTime) / 1000000000.0; //save the time of completion of the job
