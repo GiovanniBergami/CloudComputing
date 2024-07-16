@@ -13,4 +13,4 @@ where
 The output can be seen with the command:
 > hadoop fs -cat output/part-r*
 
-Outputs and informations on result are available in the folder "Output"
+Outputs and informations on results are available in the folder "Output"
