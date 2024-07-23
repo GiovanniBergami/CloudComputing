@@ -1,7 +1,6 @@
 # CloudComputing Project
 
-This repository contains the Cloud Computing Project for the accademic year 2023-2024, realized by Giovanni Bergami, Marco Bologna, Gabriele Frassi.
-It is a Map-Reduce implementation of a letter frequency counter, through Hadoop, suitable for large text files.
+This repository contains the Cloud Computing's project for the A.Y.2023-2024 (University of Pisa, master degree in Artificial Intelligence and Data Engineering), realized by Giovanni Bergami, Marco Bologna and Gabriele Frassi. It is a Map-Reduce implementation of a letter frequency counter, through Hadoop, suitable for large text files.
 
 The project can be executed using the .jar file, with the following command from the target folder
 > hadoop jar file.Jar it.unipi.hadoop.Start datasetName output nReducers InMapperCombining
